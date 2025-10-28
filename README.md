@@ -15,7 +15,7 @@ After installing the serverless backend, you will need to enter the base url in 
 constants.js file in the src directory.  
 
 Enable the developer options on your cell phone to allow npx to deploy to your cell
-phone  
+phone and then connect your cell phone via a USB cable.
 
 Then run the command to deploy to your cell phone.
 
