@@ -1,4 +1,4 @@
-// src/screens/ForgotPasswordScreen.js
+
 
 import React, { useState } from 'react';
 import {
@@ -14,30 +14,38 @@ import axios from 'axios';
 import {API_BASE_URL} from "../constants";
 import {styleAttributes} from "../styles";
 
-const ForgotPasswordScreen = () => {
+const ConfirmSignupScreen = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
+    const [confirmationCode, setConfirmationCode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     /**
      * Handles the request to send a password reset link/code.
      */
-    const handlePasswordReset = async () => {
+    const handleConfirmSignup = async () => {
         // 1. Basic Client-Side Validation
-        if (!username.trim()) {
-            Alert.alert('Error', 'Please enter your email or username.');
+        if (!username.trim() || !confirmationCode.trim()) {
+            Alert.alert('Error', 'Please enter your username and confirmation code.');
             return;
         }
 
         setIsLoading(true);
 
         try {
-             const response = await axios.post(`${API_BASE_URL}/forgotPassword`, {
-                username: username.trim(), // Use a generic identifier field
+            // 2. REST API Call to Backend Reset Endpoint
+            // This endpoint tells the server to initiate the reset process (e.g., sending an email)
+            const response = await axios.post(`${API_BASE_URL}/confirmSignup`, {
+                username: username.trim(),
+                confirmationCode:confirmationCode.trim()
             });
+
+            // 3. Handle Successful Response (HTTP 200 OK)
+            // NOTE: It's a common security practice to return a success message
+            // regardless of whether the user exists, to prevent enumeration attacks.
             Alert.alert(
                 'Success',
-                'If an account associated with this username exists, a password reset link has been sent.',
+                'Account has been confirmed successfully.',
                 [
                     // Navigate back to Login screen after the user acknowledges
                     { text: 'OK', onPress: () => navigation.navigate('Login') }
@@ -51,18 +59,15 @@ const ForgotPasswordScreen = () => {
 
             if (error.response) {
                 // Log the error but display a generic success message to the user for security
-                console.error("Forgot password API error:", error.response.data);
+                console.error("Confirm signup API error:", error.response.data);
             }
+
+            // Even if the API returns an error, we display the success message
+            // to the user and navigate them back, as the backend *should* handle
+            // the security aspect. However, for debugging/transparency, we'll
+            // show a network/critical error if the API request itself fails entirely.
             if (!error.response) {
-                Alert.alert('Request Failed', errorMessage);
-            } else {
-                Alert.alert(
-                    'Success',
-                    'If an account associated with this username exists, a password reset link has been sent.',
-                    [
-                        { text: 'OK', onPress: () => navigation.navigate('Login') }
-                    ]
-                );
+                Alert.alert('Signup confirmation failed', errorMessage);
             }
 
         } finally {
@@ -72,9 +77,9 @@ const ForgotPasswordScreen = () => {
 
     return (
         <View style={styleAttributes.container}>
-            <Text style={styleAttributes.title}>Forgot Your Password?</Text>
+            <Text style={styleAttributes.title}>Confirm Signup</Text>
             <Text style={styleAttributes.subtitle}>
-                Enter your username below and we'll send you a link to reset your password.
+                Enter your email or username below and we'll send you a link to reset your password.
             </Text>
 
             {/* Email or Username Input */}
@@ -88,14 +93,24 @@ const ForgotPasswordScreen = () => {
                 keyboardType="email-address" // Hint for common input type
             />
 
+            <TextInput
+                style={styleAttributes.input}
+                placeholder="Confirmation Code"
+                placeholderTextColor="#999"
+                value={confirmationCode}
+                onChangeText={setConfirmationCode}
+                autoCapitalize="none"
+                keyboardType="email-address" // Hint for common input type
+            />
+
             {/* Reset Button */}
             <TouchableOpacity
                 style={styleAttributes.button}
-                onPress={handlePasswordReset}
+                onPress={handleConfirmSignup}
                 disabled={isLoading}
             >
                 <Text style={styleAttributes.buttonText}>
-                    {isLoading ? 'Sending...' : 'Send Reset Link'}
+                    {isLoading ? 'Confirming...' : 'Confirm Signup'}
                 </Text>
             </TouchableOpacity>
 
@@ -111,5 +126,4 @@ const ForgotPasswordScreen = () => {
 };
 
 
-
-export default ForgotPasswordScreen;
+export default ConfirmSignupScreen;

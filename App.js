@@ -10,8 +10,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
-import HomeScreen from './src/screens/HomeScreen'; // Screen after successful login
-
+import HomeScreen from './src/screens/HomeScreen';
+import ConfirmSignupScreen  from "./src/screens/ConfirmSignupScreen";
+import ResetPasswordScreen from "./src/screens/ResetPasswordScreen";
+import store from './store.js'
+import { Provider } from 'react-redux'
 // --- Navigation Stacks ---
 const AuthStack = createStackNavigator();
 const AppStack = createStackNavigator();
@@ -26,6 +29,9 @@ const AuthNavigator = () => (
         }}
     >
         <AuthStack.Screen name="Login" component={LoginScreen} />
+        <AuthStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+        <AuthStack.Screen name="ConfirmSignup" component={ConfirmSignupScreen} />
+        <AuthStack.Screen name="Home" component={HomeScreen} />
         <AuthStack.Screen name="Register" component={RegisterScreen} />
         <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </AuthStack.Navigator>
@@ -87,10 +93,12 @@ const App = () => {
     }
 
     return (
+        <Provider store={store}>
         <NavigationContainer>
             {/* Conditionally renders the appropriate stack based on authentication status */}
             {userToken ? <AppNavigator /> : <AuthNavigator />}
         </NavigationContainer>
+        </Provider>
     );
 };
 

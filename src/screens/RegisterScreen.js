@@ -18,10 +18,7 @@ import {styleAttributes} from "../styles";
 const RegisterScreen = () => {
     const navigation = useNavigation();
     const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
         email: '',
-        phoneNumber: '',
         username: '',
         password: '',
     });
@@ -38,9 +35,9 @@ const RegisterScreen = () => {
      * Basic client-side validation for the form data.
      */
     const validateForm = () => {
-        const { firstName, lastName, email, phoneNumber, username, password } = formData;
+        const { email,  username, password } = formData;
 
-        if (!firstName || !lastName || !email || !phoneNumber || !username || !password) {
+        if ( !email || !username || !password) {
             Alert.alert('Validation Error', 'All fields are required.');
             return false;
         }
@@ -52,10 +49,8 @@ const RegisterScreen = () => {
             return false;
         }
 
-        // Phone number validation (simple check for 10-15 digits, adjust as needed)
-        const phoneRegex = /^\d{10,15}$/;
-        if (!phoneRegex.test(phoneNumber.replace(/\D/g, ''))) {
-            Alert.alert('Validation Error', 'Please enter a valid phone number (10-15 digits).');
+        if (password.length < 6) {
+            Alert.alert('Validation Error', 'Username must be at least 6 characters long.');
             return false;
         }
 
@@ -79,8 +74,13 @@ const RegisterScreen = () => {
         setIsLoading(true);
 
         try {
+            const payload = {
+                username:formData.username.trim(),
+                email: formData.email.trim(),
+                password: formData.password.trim()
+            }
             // 1. REST API Call to Backend Registration Endpoint
-            const response = await axios.post(`${API_BASE_URL}/register`, formData);
+            const response = await axios.put(`${API_BASE_URL}/register`, payload);
 
             // 2. Handle Successful Response (HTTP 201 Created or 200 OK)
             Alert.alert(
@@ -115,31 +115,13 @@ const RegisterScreen = () => {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.container}>
-                <Text style={styles.title}>Create Your Account</Text>
+        <ScrollView contentContainerStyle={styleAttributes.scrollContainer}>
+            <View style={styleAttributes.container}>
+                <Text style={styleAttributes.title}>Create Your Account</Text>
 
-                {/* First Name Input */}
-                <TextInput
-                    style={styles.input}
-                    placeholder="First Name"
-                    placeholderTextColor="#999"
-                    value={formData.firstName}
-                    onChangeText={(text) => handleChange('firstName', text)}
-                />
 
-                {/* Last Name Input */}
                 <TextInput
-                    style={styles.input}
-                    placeholder="Last Name"
-                    placeholderTextColor="#999"
-                    value={formData.lastName}
-                    onChangeText={(text) => handleChange('lastName', text)}
-                />
-
-                {/* Email Input */}
-                <TextInput
-                    style={styles.input}
+                    style={styleAttributes.input}
                     placeholder="Email"
                     placeholderTextColor="#999"
                     value={formData.email}
@@ -148,19 +130,9 @@ const RegisterScreen = () => {
                     autoCapitalize="none"
                 />
 
-                {/* Cell Phone Number Input */}
-                <TextInput
-                    style={styles.input}
-                    placeholder="Cell Phone Number"
-                    placeholderTextColor="#999"
-                    value={formData.phoneNumber}
-                    onChangeText={(text) => handleChange('phoneNumber', text)}
-                    keyboardType="phone-pad"
-                />
 
-                {/* Username Input */}
                 <TextInput
-                    style={styles.input}
+                    style={styleAttributes.input}
                     placeholder="Username"
                     placeholderTextColor="#999"
                     value={formData.username}
@@ -168,9 +140,8 @@ const RegisterScreen = () => {
                     autoCapitalize="none"
                 />
 
-                {/* Password Input */}
                 <TextInput
-                    style={styles.input}
+                    style={styleAttributes.input}
                     placeholder="Password"
                     placeholderTextColor="#999"
                     value={formData.password}
@@ -181,22 +152,22 @@ const RegisterScreen = () => {
 
                 {/* Register Button */}
                 <TouchableOpacity
-                    style={styles.button}
+                    style={styleAttributes.button}
                     onPress={handleRegister}
                     disabled={isLoading}
                 >
-                    <Text style={styles.buttonText}>
+                    <Text style={styleAttributes.buttonText}>
                         {isLoading ? 'Registering...' : 'Register'}
                     </Text>
                 </TouchableOpacity>
 
                 {/* Back to Login Link */}
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>Already have an account? </Text>
+                <View style={styleAttributes.footer}>
+                    <Text style={styleAttributes.footerText}>Already have an account? </Text>
                     <TouchableOpacity
                         onPress={() => navigation.navigate('Login')}
                     >
-                        <Text style={styles.loginLink}>Log In</Text>
+                        <Text style={styleAttributes.loginLink}>Log In</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -204,17 +175,6 @@ const RegisterScreen = () => {
     );
 };
 
-// --- Basic Styling ---
-const styles = StyleSheet.create({
-    scrollContainer:styleAttributes.scrollContainer,
-    container: styleAttributes.container,
-    title: styleAttributes.title,
-    input: styleAttributes.input,
-    button: styleAttributes.button,
-    buttonText: styleAttributes.buttonText,
-    footer: styleAttributes.footer,
-    footerText: styleAttributes.footerText,
-    loginLink: styleAttributes.loginLink,
-});
+
 
 export default RegisterScreen;

@@ -1,5 +1,3 @@
-// src/screens/LoginScreen.js
-
 import React, { useState } from 'react';
 import {
     View,
@@ -10,17 +8,18 @@ import {
     Alert // Used for displaying success/error messages
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-// If you are using AsyncStorage for token storage, import it here:
-// import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {API_BASE_URL} from "../constants";
 import {styleAttributes} from "../styles";
+import { useDispatch } from 'react-redux';
+import {updateToken} from "../redux/slice.js";
 
 const LoginScreen = () => {
     const navigation = useNavigation();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const dispatch = useDispatch();
 
     /**
      * Handles the login process by sending user credentials to the backend.
@@ -37,7 +36,7 @@ const LoginScreen = () => {
         try {
             // 2. REST API Call to Backend Login Endpoint
             const response = await axios.post(`${API_BASE_URL}/login`, {
-                username: username.trim(),
+                email: username.trim(),
                 password: password.trim(),
             });
 
@@ -45,20 +44,8 @@ const LoginScreen = () => {
             const { token } = response.data;
 
             if (token) {
-                // 4. Securely Store the Authentication Token (e.g., JWT)
-                // await AsyncStorage.setItem('userToken', token);
-
-                // --- Mocking successful login and navigation to Home ---
-                Alert.alert('Success', 'Login successful!');
-
-                // In a real app, you would dispatch an action or set a context
-                // state to update the 'userToken' state in App.js,
-                // which triggers the navigation switch from AuthStack to AppStack.
-                // For now, we'll navigate directly as a placeholder:
-                // navigation.navigate('Home');
-
-                // If App.js is handling the conditional rendering, you'll need a way
-                // to update the state there (e.g., via Context API).
+                dispatch(updateToken(token));
+                navigation.navigate('Home')
             }
         } catch (error) {
             // 5. Handle Errors (e.g., 401 Unauthorized, Network Error)
@@ -83,12 +70,12 @@ const LoginScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Welcome Back</Text>
+        <View style={styleAttributes.container}>
+            <Text style={styleAttributes.title}>Welcome Back</Text>
 
             {/* Username Input */}
             <TextInput
-                style={styles.input}
+                style={styleAttributes.input}
                 placeholder="Username"
                 placeholderTextColor="#999"
                 value={username}
@@ -98,7 +85,7 @@ const LoginScreen = () => {
 
             {/* Password Input */}
             <TextInput
-                style={styles.input}
+                style={styleAttributes.input}
                 placeholder="Password"
                 placeholderTextColor="#999"
                 value={password}
@@ -109,48 +96,45 @@ const LoginScreen = () => {
 
             {/* Login Button */}
             <TouchableOpacity
-                style={styles.button}
+                style={styleAttributes.button}
                 onPress={handleLogin}
                 disabled={isLoading}
             >
-                <Text style={styles.buttonText}>
+                <Text style={styleAttributes.buttonText}>
                     {isLoading ? 'Logging in...' : 'Log In'}
                 </Text>
             </TouchableOpacity>
-
-            {/* Forgot Password Link */}
+            <View style={styleAttributes.linkContainer}>
+            <TouchableOpacity style={styleAttributes.link}
+                onPress={() => navigation.navigate('ConfirmSignup')}
+            >
+                <Text style={styleAttributes.linkText}>Confirm Registration</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styleAttributes.link}
+                onPress={() => navigation.navigate('ResetPassword')}
+            >
+                <Text style={styleAttributes.linkText}>Reset Password</Text>
+            </TouchableOpacity>
             <TouchableOpacity
-                style={styles.link}
+                style={styleAttributes.link}
                 onPress={() => navigation.navigate('ForgotPassword')}
             >
-                <Text style={styles.linkText}>Forgot Password?</Text>
+                <Text style={styleAttributes.linkText}>Forgot Password?</Text>
             </TouchableOpacity>
-
+            </View>
             {/* Registration Link */}
-            <View style={styles.footer}>
-                <Text style={styles.footerText}>Don't have an account? </Text>
+            <View style={styleAttributes.footer}>
+                <Text style={styleAttributes.footerText}>Don't have an account? </Text>
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Register')}
                 >
-                    <Text style={styles.registerLink}>Register</Text>
+                    <Text style={styleAttributes.registerLink}>Register</Text>
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
 
-// --- Basic Styling ---
-const styles = StyleSheet.create({
-    container: styleAttributes.loginContainer ,
-    title: styleAttributes.title,
-    input: styleAttributes.input,
-    button: styleAttributes.button,
-    buttonText: styleAttributes.buttonText,
-    link: styleAttributes.link,
-    linkText: styleAttributes.linkText,
-    footer: styleAttributes.footer,
-    footerText: styleAttributes.footerText,
-    registerLink: styleAttributes.registerLink,
-});
+
 
 export default LoginScreen;
